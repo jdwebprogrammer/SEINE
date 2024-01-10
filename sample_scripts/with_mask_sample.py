@@ -38,7 +38,7 @@ from PIL import Image
 import numpy as np
 from torchvision import transforms
 sys.path.append("..")
-from datasets import video_transforms
+from sdatasets import video_transforms
 from utils import mask_generation_before
 from natsort import natsorted
 from diffusers.utils.import_utils import is_xformers_available
@@ -168,7 +168,7 @@ def auto_inpainting(args, video_input, masked_video, mask, prompt, vae, text_enc
     video_clip = vae.decode(video_clip / 0.18215).sample # [16, 3, 256, 256]
     return video_clip
 
-def main(args):
+def main(args, prompt, filename, image_start, image_end, gpu):
     # Setup PyTorch:
     if args.seed:
         torch.manual_seed(args.seed)
@@ -213,16 +213,9 @@ def main(args):
         text_encoder.to(dtype=torch.float16)
 
     # prompt:
-    prompt = args.text_prompt
-    if prompt ==[]:
-        prompt = args.input_path.split('/')[-1].split('.')[0].replace('_', ' ')
-    else:
-        prompt = prompt[0]
-    prompt_base = prompt.replace(' ','_')
     prompt = prompt + args.additional_prompt
 
-    if not os.path.exists(os.path.join(args.save_path)):
-        os.makedirs(os.path.join(args.save_path))
+
     video_input, researve_frames = get_input(args) # f,c,h,w
     video_input = video_input.to(device).unsqueeze(0) # b,f,c,h,w
     mask = mask_generation_before(args.mask_type, video_input.shape, video_input.dtype, device) # b,f,c,h,w
@@ -230,14 +223,25 @@ def main(args):
 
     video_clip = auto_inpainting(args, video_input, masked_video, mask, prompt, vae, text_encoder, diffusion, model, device,)
     video_ = ((video_clip * 0.5 + 0.5) * 255).add_(0.5).clamp_(0, 255).to(dtype=torch.uint8).cpu().permute(0, 2, 3, 1)
-    save_video_path = os.path.join(args.save_path,  prompt_base+ '.mp4')
-    torchvision.io.write_video(save_video_path, video_, fps=8)
-    print(f'save in {save_video_path}')
+    torchvision.io.write_video(filename, video_, fps=8)
+    print(f'save in {filename}')
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, default="./configs/sample_mask.yaml")
+
+    parser.add_argument('--prompt', type=str, help='A quoted string')
+    parser.add_argument('--filename', type=str, help='A quoted string')
+    parser.add_argument('--image_start', type=str, help='str')
+    parser.add_argument('--image_end', type=str, help='str')
+    parser.add_argument('--gpu', type=int, help='Another integer')
+
     args = parser.parse_args()
     omega_conf = OmegaConf.load(args.config)
-    main(omega_conf)
+
+    input_path: 'input/i2v/Close-up_essence_is_poured_from_bottleKodak_Vision.png'
+    text_prompt: []
+    save_path
+
+    main(omega_conf, args.prompt, args.filename, args.image_start, args.image_end, args.gpu)

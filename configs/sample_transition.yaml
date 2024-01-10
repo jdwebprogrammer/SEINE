@@ -1,8 +1,8 @@
 #path config:
 ckpt: "pretrained/seine.pt"
 pretrained_model_path: "pretrained/stable-diffusion-v1-4/"
-input_path: "input/transition/1"
-save_path: "./results/transition/"
+#input_path: "input/transition/1"
+#save_path: "./results/transition/"
 
 # model config: 
 model: UNet
