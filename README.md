@@ -1,3 +1,10 @@
+
+# Fork
+This repository is forked from:
+[SEINE](https://github.com/Vchitect/SEINE)
+
+At the moment I am only working on wrapping this into a class to be imported directly in larger projects.
+
 # SEINE
 [![arXiv](https://img.shields.io/badge/arXiv-2310.20700-b31b1b.svg)](https://arxiv.org/abs/2310.20700)
 [![Project Page](https://img.shields.io/badge/SEINE-Website-green)](https://vchitect.github.io/SEINE-project/)
